@@ -1,0 +1,45 @@
+
+@model List<PostModel>
+
+<h1>Succes</h1>
+
+<p>Your Posts: </p>
+<p> </p>
+
+
+<table>
+    <tr>
+        <th>| ID of post | </th>
+        <th> Content | </th>
+        <th> Date | </th>
+        <th> Your ID | </th>
+
+    </tr>
+    <tr></tr>
+    @foreach (var item in Model)
+    {
+<tr>
+    <td>
+        @item.ID
+    </td>
+    <td>
+        @item.Content
+    </td>
+    <td>
+        @item.Date
+    </td>
+    <td>
+        @item.UserID
+    </td>
+    <td>
+        @Html.ActionLink("Edit", "Edit", new { id = item.ID }) |
+        @Html.ActionLink("Details", "Details", new { id = item.ID })  |
+        @Html.ActionLink("Delete", "Delete", new { id = item.ID })
+    </td>
+</tr>}
+</table>
+
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
