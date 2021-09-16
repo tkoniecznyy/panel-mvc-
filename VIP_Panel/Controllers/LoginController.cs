@@ -8,6 +8,9 @@ using Microsoft.Extensions.Logging;
 using VIP_Panel.Data;
 using System.Security.Cryptography;
 using VIP_Panel.Models;
+using VIP_Panel.Services;
+using System.Net;
+using Microsoft.AspNetCore.Identity;
 
 namespace VIP_Panel.Controllers
 
@@ -16,12 +19,13 @@ namespace VIP_Panel.Controllers
     {
         private readonly ILogger<LoginController> _logger;
         private readonly ApplicationDbContext _context;
-        //HttpContext context = HttpContext.Current;
+        private readonly IAccountService _accountService;
 
-        public LoginController(ILogger<LoginController> logger, ApplicationDbContext context)
+        public LoginController(ILogger<LoginController> logger, ApplicationDbContext context, IAccountService accountService)
         {
             _logger = logger;
             _context = context;
+            _accountService = accountService;
         }
 
 
@@ -40,7 +44,7 @@ namespace VIP_Panel.Controllers
 
 
                 var f_password = password;
-                    var data = _context.vipUsers.Where(s => s.Email.Equals(email) && s.Password.Equals(f_password)).ToList(); //moze zawierac wiecej niz 1 rekord gdy sa takie same rekordy w bazie (POTRZEBNA WALIDACJA EMAILI)
+                        var data = _context.vipUsers.Where(s => s.Email.Equals(email) && s.Password.Equals(f_password)).ToList(); //moze zawierac wiecej niz 1 rekord gdy sa takie same rekordy w bazie (POTRZEBNA WALIDACJA EMAILI)
                 if (data.Count() > 0)
                 {
                     //add data
@@ -60,6 +64,53 @@ namespace VIP_Panel.Controllers
             }
             return View();
         }
+
+
+        [HttpPost]
+        [Route("LoginJwt")]
+        [ValidateAntiForgeryToken]
+        public ActionResult LoginJwt(string email, string password)
+        {
+
+            if (ModelState.IsValid)
+            {
+
+
+                LoginDto dto = new LoginDto(email, password);
+                string token = _accountService.GenerateJwt(dto);
+                if (token != null)
+                {
+
+                    return RedirectToAction("SuccesJWT", new { token = token });
+                }
+                else
+                {
+                    ViewBag.error = "Login failed";
+                    return RedirectToAction("Login");
+                }
+            }
+            return View();
+
+            
+
+
+            
+        }
+
+        
+        public ActionResult SuccesJWT(string token)
+        {
+
+            return View(showPostsJwt(token));
+        }
+
+
+
+
+
+
+
+
 
         //Logout
         public ActionResult Logout()
@@ -108,10 +159,10 @@ namespace VIP_Panel.Controllers
         [NonAction]
         public List<PostModel> showPostsThatBelongsToUser(int userId)
         {
-
+           
             List<PostModel> data = _context.posts.Where(p => p.UserID==(userId)).ToList();
 
-            Console.WriteLine("!!!!!!!!! ==? same content!!!!!!!!!!!!");
+           
             Console.WriteLine(data.Count());
             Console.WriteLine(userId);
             //   Console.WriteLine((_context.posts.Where(p => p.UserID.Equals(userId)).ToList()).ElementAt(0).Content.ToString());
@@ -124,5 +175,36 @@ namespace VIP_Panel.Controllers
             else data.Add(new PostModel(0, "none", "none", 0));
             return data.ToList();
         }
+
+
+
+        [NonAction]
+        public List<PostModel> showPostsJwt(string token)
+        {
+
+            var userId = UserHelper.GetUserId();
+            Console.WriteLine("$$$$$$$$$$$$$$$");
+            Console.WriteLine(userId);
+
+
+               List<PostModel> data = _context.posts.Where(p => p.UserID == (0)).ToList();
+
+
+            Console.WriteLine(data.Count());
+            Console.WriteLine(userId);
+            //   Console.WriteLine((_context.posts.Where(p => p.UserID.Equals(userId)).ToList()).ElementAt(0).Content.ToString());
+
+
+            if (data.Any())
+            {
+                return data.ToList();
+            }
+            else data.Add(new PostModel(0, "none", "none", 0));
+            return data.ToList();
+        }
+
+
+
     }
+
 }

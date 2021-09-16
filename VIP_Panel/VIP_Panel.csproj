@@ -13,6 +13,14 @@
     <None Remove="Views\Login\" />
     <None Remove="Microsoft.AspNetCore.Session" />
     <None Remove="NLog.Web.AspNetCore" />
+    <None Remove="Microsoft.Extensions.DependencyInjection" />
+    <None Remove="Microsoft.AspNetCore.Authentication.Core" />
+    <None Remove="Microsoft.AspNetCore.Authentication" />
+    <None Remove="Authentication\" />
+    <None Remove="Microsoft.AspNetCore.Authentication.JwtBearer" />
+    <None Remove="Exceptions\" />
+    <None Remove="Middleware\" />
+    <None Remove="Services\" />
   </ItemGroup>
   <ItemGroup>
     <None Update="app.db" CopyToOutputDirectory="PreserveNewest" ExcludeFromSingleFile="true" />
@@ -29,10 +37,18 @@
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="3.1.4" />
     <PackageReference Include="Microsoft.AspNetCore.Session" Version="2.2.0" />
     <PackageReference Include="NLog.Web.AspNetCore" Version="4.14.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="5.0.2" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.Core" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication" Version="2.2.0" />
+    <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.10" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
     <Folder Include="Views\Login\" />
+    <Folder Include="Authentication\" />
+    <Folder Include="Exceptions\" />
+    <Folder Include="Middleware\" />
+    <Folder Include="Services\" />
   </ItemGroup>
 </Project>

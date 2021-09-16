@@ -12,6 +12,12 @@ using VIP_Panel.Data;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using VIP_Panel.Authentication;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
+using VIP_Panel.Middleware;
+using VIP_Panel.Services;
+using VIP_Panel.Models;
 
 namespace VIP_Panel
 {
@@ -35,6 +41,35 @@ namespace VIP_Panel
             services.AddControllersWithViews();
             services.AddRazorPages();
             services.AddSession();
+            services.AddScoped<ErrorHandlingMiddleware>();
+            services.AddScoped<IPasswordHasher<VipUserModel>, PasswordHasher<VipUserModel>>();
+            services.AddScoped<IAccountService, AccountService>(); //JWT
+            
+            //JWT Token config below
+
+            var authenticationSettings = new AuthenticationSettings();
+
+            services.AddSingleton(authenticationSettings);
+
+            Configuration.GetSection("Authentication").Bind(authenticationSettings);
+
+            services.AddAuthentication(option =>
+            {
+                option.DefaultAuthenticateScheme = "Bearer";
+                option.DefaultScheme = "Bearer";
+                option.DefaultChallengeScheme = "Bearer";
+            }).AddJwtBearer(cfg =>{
+                cfg.RequireHttpsMetadata = false;
+                cfg.SaveToken = true;
+                cfg.TokenValidationParameters = new Microsoft.IdentityModel.Tokens.TokenValidationParameters
+                {
+                    ValidIssuer = authenticationSettings.JwtIssuer, //wydawca tokenu
+                    ValidAudience = authenticationSettings.JwtIssuer,
+                    IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(authenticationSettings.JwtKey)),
+                };
+            }
+            );
+            //
 
             services.AddDbContext<ApplicationDbContext>(
         options => options.UseSqlServer("name=ConnectionStrings:DefaultConnection")); //db connection
@@ -54,13 +89,17 @@ namespace VIP_Panel
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
+
+            app.UseMiddleware<ErrorHandlingMiddleware>(); //exceptions middleware
+            app.UseAuthentication(); //JWT
+
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 
             app.UseRouting();
             app.UseSession();
 
-            app.UseAuthentication();
+            //app.UseAuthentication();
             app.UseAuthorization();
 
             app.UseEndpoints(endpoints =>
