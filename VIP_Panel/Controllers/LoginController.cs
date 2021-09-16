@@ -40,17 +40,17 @@ namespace VIP_Panel.Controllers
 
 
                 var f_password = password;
-                var data = _context.vipUsers.Where(s => s.Email.Equals(email) && s.Password.Equals(f_password)).ToList();
+                    var data = _context.vipUsers.Where(s => s.Email.Equals(email) && s.Password.Equals(f_password)).ToList(); //moze zawierac wiecej niz 1 rekord gdy sa takie same rekordy w bazie (POTRZEBNA WALIDACJA EMAILI)
                 if (data.Count() > 0)
                 {
                     //add data
                     ViewBag.FullName = data.FirstOrDefault().FirstName + " " + data.FirstOrDefault().LastName;
                     ViewBag.Email = data.FirstOrDefault().Email;
-                    ViewBag.idUser = data.FirstOrDefault().ID;
+                    ViewBag.idUser = data.ElementAt(0).ID; 
                     int idUser = ViewBag.idUser;
 
 
-                    return RedirectToAction("Succes", idUser);
+                    return RedirectToAction("Succes", new { idUser = idUser }); // userId is throwing by url //need JWT tokenm or other security
                 }
                 else
                 {
@@ -67,7 +67,7 @@ namespace VIP_Panel.Controllers
             // Session.Clear();//remove session
             return RedirectToAction("Login");
         }
-
+        
         public ActionResult Succes(int idUser)
         {
 
@@ -90,7 +90,11 @@ namespace VIP_Panel.Controllers
         {
             try
             {
-                // TODO: Add insert logic here
+                Console.WriteLine(_context.Database.CanConnect());
+                // Remember .value!
+                _context.vipUsers.Add(new VipUserModel(collection.ElementAt(0).Value.ToString(), collection.ElementAt(1).Value.ToString(), collection.ElementAt(2).Value.ToString(), collection.ElementAt(3).Value.ToString())); ;
+                _context.SaveChanges(); //not async
+               
 
                 return RedirectToAction(nameof(Index));
             }
@@ -105,17 +109,13 @@ namespace VIP_Panel.Controllers
         public List<PostModel> showPostsThatBelongsToUser(int userId)
         {
 
-            List<PostModel> data = _context.posts.Where(p => p.UserID.Equals(userId)).ToList();
+            List<PostModel> data = _context.posts.Where(p => p.UserID==(userId)).ToList();
 
-            
-
-            for(int i = 0; i < _context.posts.Count(); i++)  ///// To delete !!!!
-            {
-                if (_context.posts.ElementAt(i).UserID == userId)
-                { 
-                    data.Add(_context.posts.ElementAt(i));
-                }
-            }                                               /////////
+            Console.WriteLine("!!!!!!!!! ==? same content!!!!!!!!!!!!");
+            Console.WriteLine(data.Count());
+            Console.WriteLine(userId);
+            //   Console.WriteLine((_context.posts.Where(p => p.UserID.Equals(userId)).ToList()).ElementAt(0).Content.ToString());
+                                                      
 
             if (data.Any())
             {

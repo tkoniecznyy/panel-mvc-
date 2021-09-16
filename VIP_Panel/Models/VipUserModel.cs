@@ -16,9 +16,9 @@ namespace VIP_Panel.Models
         [Required]
         public string Password { get; set; }
 
-        public VipUserModel(int iD, string firstName, string lastName, string email, string password)
+        public VipUserModel(string firstName, string lastName, string email, string password)
         {
-            ID = iD;
+           // ID = iD;
             FirstName = firstName;
             LastName = lastName;
             Email = email;

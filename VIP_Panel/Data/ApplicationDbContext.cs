@@ -21,7 +21,7 @@ namespace VIP_Panel.Data
         {
             optionsBuilder
                 .UseSqlServer(
-                    @"Server=tcp:lact-test.database.windows.net,1433;Database=HomeUs_testDb;User ID=lact_tk;Password=21.testDb;Trusted_Connection=False;Encrypt=True;",
+                    @"Server=tcp:lact-test.database.windows.net,1433;Database=HomeUs_testDb;User ID=lact_tk;Password=21.testDb;Trusted_Connection=False;Encrypt=True;MultipleActiveResultSets = True",
                     providerOptions => { providerOptions.EnableRetryOnFailure(); });
         }
 

@@ -20,6 +20,7 @@ namespace VIP_Panel
             Host.CreateDefaultBuilder(args)
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
+                    // webBuilder.UseUrls("http://localhost:5001"); /// diffrent port ( 5001 deafault )
                     webBuilder.UseStartup<Startup>();
                 });
     }
